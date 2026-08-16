@@ -3,7 +3,7 @@ import allure
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from pages.kinopoisk_page_UI import SeachCinemaPage
+from pages.kinopoisk_page_UI import SearchCinemaPage
 from config import BASE_URL, SEARCH_TEXT_RUS, SEARCH_TEXT_ENG
 
 
@@ -29,29 +29,26 @@ def driver():
 @allure.story("Ввод поискового запроса на русском языке")
 @pytest.mark.ui
 def test_search_cinema_rus(driver):
-    page = SeachCinemaPage(driver, BASE_URL)
+    # ВАЖНО: Передаем только 2 аргумента (driver и base_url)
+    page = SearchCinemaPage(driver, BASE_URL)
     page.open()
 
-    with allure.step(
-        "Безопасное закрытие всплывающего окна, если оно есть"
-    ):
+    with allure.step("Безопасное закрытие всплывающего окна, если оно есть"):
         try:
             page.close_tab()
         except Exception:
-            # Окно могло не появиться — это не ошибка теста
             pass
 
     search_text = SEARCH_TEXT_RUS
+    
     with allure.step(f"Выполнение поиска по запросу '{search_text}'"):
+        # Текст поиска передаем в метод, а не в конструктор
         page.search_cinema(search_text)
 
-    search_input_element = page.wait.until(
-        lambda d: d.find_element(*page.SEARCH_BAR)
-    )
     with allure.step(
-        f"Проверка, что в поле ввода отображается текст '{search_text}'"
+        f"Проверка, что в поле поиска отображается текст '{search_text}'"
     ):
-        assert search_input_element.get_attribute("value") == search_text
+        assert page.get_search_value() == search_text
 
 
 @allure.title("Поиск названия фильма на латинице")
@@ -64,29 +61,26 @@ def test_search_cinema_rus(driver):
 @allure.story("Ввод поискового запроса на английском языке")
 @pytest.mark.ui
 def test_search_cinema_eng(driver):
-    page = SeachCinemaPage(driver, BASE_URL)
+    # ВАЖНО: Передаем только 2 аргумента (driver и base_url)
+    page = SearchCinemaPage(driver, BASE_URL)
     page.open()
 
-    with allure.step(
-        "Безопасное закрытие всплывающего окна, если оно есть"
-    ):
+    with allure.step("Безопасное закрытие всплывающего окна, если оно есть"):
         try:
             page.close_tab()
         except Exception:
             pass
 
     search_text = SEARCH_TEXT_ENG
+    
     with allure.step(f"Выполнение поиска по запросу '{search_text}'"):
+        # Текст поиска передаем в метод, а не в конструктор
         page.search_cinema(search_text)
 
-    search_input_element = page.wait.until(
-        lambda d: d.find_element(*page.SEARCH_BAR)
-    )
     with allure.step(
-        f"Проверка, что в поле ввода отображается текст '{search_text}'"
+        f"Проверка, что в поле поиска отображается текст '{search_text}'"
     ):
-        assert search_input_element.get_attribute("value") == search_text
-
+        assert page.get_search_value() == search_text
 
 @allure.title("Открытие страницы поиска случайного фильма")
 @allure.description(
@@ -98,7 +92,7 @@ def test_search_cinema_eng(driver):
 @allure.story("Переход на страницу случайного фильма")
 @pytest.mark.ui
 def test_search_random_page(driver):
-    page = SeachCinemaPage(driver, BASE_URL)
+    page = SearchCinemaPage(driver, BASE_URL)
     page.open()
 
     with allure.step(
@@ -131,7 +125,7 @@ def test_search_random_page(driver):
 @allure.story("Переход на страницу расширенного поиска")
 @pytest.mark.ui
 def test_advanced_search_page(driver):
-    page = SeachCinemaPage(driver, BASE_URL)
+    page = SearchCinemaPage(driver, BASE_URL)
     page.open()
 
     with allure.step(
@@ -162,7 +156,7 @@ def test_advanced_search_page(driver):
 @allure.story("Поиск фильма и переход на его страницу")
 @pytest.mark.ui
 def test_movie_genre_displays(driver):
-    page = SeachCinemaPage(driver, BASE_URL)
+    page = SearchCinemaPage(driver, BASE_URL)
     page.open()
 
     with allure.step(
