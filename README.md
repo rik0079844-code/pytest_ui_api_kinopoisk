@@ -65,7 +65,7 @@ FAKEMOVIE — несуществующее название фильма дл�
 
 ## Установка
 
-1. Склонировать проект 'git clone https://github.com/имя_пользователя/
+1. Склонировать проект 'git clone https://github.com/rik0079844-code/pytest_ui_api_kinopoisk/tree/main
    pytest_ui_api_template.git'
 
 3. Запустить тесты 'pytest'
