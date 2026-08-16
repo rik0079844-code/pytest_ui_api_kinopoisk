@@ -1,10 +1,11 @@
 import requests
+from typing import Any, Dict, List, Optional
 import allure
 
 
 class KinopoiskApiClient:
     @allure.step("Инициализация клиента API Кинопоиска")
-    def __init__(self, base_url, token):
+    def __init__(self, base_url: str, token: str) -> None:
         """
         Параметры:
         - base_url: базовый URL API (например,
@@ -16,13 +17,13 @@ class KinopoiskApiClient:
           Передаётся в заголовок X-API-KEY.
         """
         self.base_url = base_url.rstrip("/")
-        self.headers = {
+        self.headers: Dict[str, str] = {
             "X-API-KEY": token,
             "Accept": "application/json"
         }
 
     @allure.step("Выполнение HTTP-запроса и валидация Content-Type")
-    def _request(self, endpoint, params=None):
+    def _request(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> requests.Response:
         """
         Параметры:
         - endpoint: относительный путь к ресурсу API (например,
@@ -58,7 +59,7 @@ class KinopoiskApiClient:
         return resp
 
     @allure.step("Поиск фильма по названию через API")
-    def search_movie_by_title(self, query, limit=5):
+    def search_movie_by_title(self, query: str, limit: int = 5) -> requests.Response:
         """
         Параметры:
         - query: поисковый запрос (название фильма), может быть на
@@ -74,7 +75,11 @@ class KinopoiskApiClient:
         return self._request(endpoint, params=params)
 
     @allure.step("Поиск совпадения названия фильма в списке результатов")
-    def find_result_containing_title(self, results, query):
+    def find_result_containing_title(
+        self,
+        results: List[Dict[str, Any]],
+        query: str
+    ) -> Optional[Dict[str, Any]]:
         """
         Параметры:
         - results: список найденных фильмов (список словарей),
@@ -114,10 +119,24 @@ class KinopoiskApiClient:
                 if query_lower in text.lower():
                     return item
 
+        for movie in results:
+            # Проверяем русское название (если поле существует)
+            name_ru = movie.get('nameRu', '') or ''
+            # Проверяем английское название (если поле существует)
+            name_en = movie.get('nameEn', '') or ''
+            # Проверяем основное поле name (если есть)
+            name_main = movie.get('name', '') or ''
+            
+            # Приводим все к нижнему регистру для сравнения
+            if (query_lower in name_ru.lower() or 
+                query_lower in name_en.lower() or 
+                query_lower in name_main.lower()):
+                return movie
+                
         return None
 
     @allure.step("Поиск фильмов по жанру через API")
-    def search_by_genre(self, genre, limit=5):
+    def search_by_genre(self, genre: str, limit: int = 5) -> requests.Response:
         """
         Параметры:
         - genre: название жанра (например, "драма", "фантастика").
@@ -133,7 +152,7 @@ class KinopoiskApiClient:
         return self._request(endpoint, params=params)
 
     @allure.step("Парсинг ответа API и извлечение списка результатов")
-    def parse_search_response(self, response):
+    def parse_search_response(self, response: requests.Response) -> List[Dict[str, Any]]:
         """
         Параметр:
         - response: объект ответа от API (requests.Response),
@@ -157,3 +176,4 @@ class KinopoiskApiClient:
         if not isinstance(results, list):
             return []
         return results
+    
