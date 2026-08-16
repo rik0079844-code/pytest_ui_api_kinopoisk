@@ -61,20 +61,9 @@ def test_search_movie_cyrillic_rus(kinopoisk_client):
             results,
             query,
         )
-        if found is None:
-            titles = [
-                str(
-                    m.get("nameRu")
-                    or m.get("nameEn")
-                    or m.get("title")
-                    or "Unknown"
-                )
-                for m in results
-            ]
-            print(
-                f"Не удалось найти точное совпадение для '{query}'. "
-                f"Выдача: {titles}"
-            )
+        assert found is not None, (
+            f"Фильм с названием '{query}' не найден"
+        )
 
 
 @allure.title("Поиск фильма по латинскому названию")
@@ -119,20 +108,6 @@ def test_search_movie_cyrillic_eng(kinopoisk_client):
             results,
             query,
         )
-        if found is None:
-            titles = [
-                str(
-                    m.get("nameRu")
-                    or m.get("nameEn")
-                    or m.get("title")
-                    or "Unknown"
-                )
-                for m in results
-            ]
-            print(
-                f"Не удалось найти точное совпадение для '{query}'. "
-                f"Выдача: {titles}"
-            )
 
 
 @allure.title("Поиск фильмов по жанру (кириллический запрос)")
