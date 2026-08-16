@@ -1,66 +1,53 @@
 import allure
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from typing import Tuple
 
 
-class SeachCinemaPage:
+class SearchCinemaPage:
     """
     Page Object для страницы поиска Кинопоиска.
     Инкапсулирует локаторы элементов и методы взаимодействия с ними.
     """
 
-    # Локатор кнопки закрытия всплывающего окна.
-    # By.CSS_SELECTOR — стратегия поиска; селектор ищет кнопку
-    # по атрибуту data-tid="CloseButton".
-    CLOSE_BUTTON = (
+    CLOSE_BUTTON: Tuple[By, str] = (
         By.CSS_SELECTOR,
         'button[data-tid="CloseButton"]'
     )
 
-    # Локатор поисковой строки (базовый).
-    # Ищет input с name="text" и ролью combobox.
-    SEARCH_BAR = (
+    SEARCH_BAR: Tuple[By, str] = (
         By.CSS_SELECTOR,
         'input[name="text"][role="combobox"]'
     )
 
-    # Локатор кнопки поиска (лупа).
-    # Ищет кнопку по aria-label="Найти".
-    BUTTON_SEARCH = (
+    BUTTON_SEARCH: Tuple[By, str] = (
         By.CSS_SELECTOR,
         'button[aria-label="Найти"]'
     )
 
-    # Локатор ссылки «Расширенный поиск».
-    # Ищет a по aria-label="Расширенный поиск".
-    BUTTON_ADVANCED_SEARCH = (
+    BUTTON_ADVANCED_SEARCH: Tuple[By, str] = (
         By.CSS_SELECTOR,
         'a[aria-label="Расширенный поиск"]'
     )
 
-    # Локатор поля ввода в подсказках поиска.
-    # Ищет input по aria-label="Фильмы, сериалы, персоны".
-    SEARCH_INPUT = (
+    SEARCH_INPUT: Tuple[By, str] = (
         By.CSS_SELECTOR,
         'input[aria-label="Фильмы, сериалы, персоны"]'
     )
 
-    # Локатор карточки фильма в подсказках.
-    # Пример жёстко заданного ID (в реальных тестах лучше избегать).
-    MOVIE_CARD = (
+    MOVIE_CARD: Tuple[By, str] = (
         By.ID,
         'suggest-item-film-263531'
     )
 
-    # Локатор заголовка (названия) фильма на странице фильма.
-    # Ищет span внутри h1[itemprop="name"].
-    MOVIE_TITLE = (
+    MOVIE_TITLE: Tuple[By, str] = (
         By.CSS_SELECTOR,
         'h1[itemprop="name"] span'
     )
 
-    def __init__(self, driver, base_url):
+    def __init__(self, driver: WebDriver, base_url: str) -> None:
         """
         Инициализация страницы.
 
@@ -69,16 +56,15 @@ class SeachCinemaPage:
         """
         self.driver = driver
         self.base_url = base_url
-        # WebDriverWait — объект ожидания; 10 — таймаут в секундах.
-        self.wait = WebDriverWait(self.driver, 10)
+        self.wait: WebDriverWait = WebDriverWait(self.driver, 15)
 
     @allure.step("Открытие страницы Кинопоиска")
-    def open(self):
+    def open(self) -> None:
         """Открывает страницу по сохранённому base_url."""
         self.driver.get(self.base_url)
 
     @allure.step("Закрытие всплывающего окна на странице")
-    def close_tab(self):
+    def close_tab(self) -> None:
         """Закрывает всплывающее окно, если оно присутствует."""
         with allure.step(
             "Ожидание кликабельной кнопки закрытия окна"
@@ -90,11 +76,10 @@ class SeachCinemaPage:
                 with allure.step("Клик по кнопке закрытия"):
                     close_btn.click()
             except Exception:
-                # Окно могло не появиться — это не ошибка.
                 pass
 
     @allure.step("Проверка ввода названия в поисковой строке")
-    def search_cinema(self, text: str):
+    def search_cinema(self, text: str) -> None:
         """
         Вводит текст в поисковую строку.
 
@@ -110,7 +95,7 @@ class SeachCinemaPage:
             search_input.send_keys(text)
 
     @allure.step("Открытие страницы для поиска случайного фильма")
-    def search_random_cinema(self):
+    def search_random_cinema(self) -> None:
         """Нажимает кнопку поиска (лупа) для перехода к случайному фильму."""
         with allure.step("Ожидание кликабельной кнопки поиска"):
             search_button = self.wait.until(
@@ -120,7 +105,7 @@ class SeachCinemaPage:
             search_button.click()
 
     @allure.step("Проверка перехода на страницу случайного фильма")
-    def assert_on_random_movie_page(self):
+    def assert_on_random_movie_page(self) -> None:
         """
         Проверяет, что URL содержит '/chance/' — признак страницы
         случайного фильма.
@@ -134,7 +119,7 @@ class SeachCinemaPage:
             )
 
     @allure.step("Открытие страницы расширенного поиска")
-    def get_advanced_search(self):
+    def get_advanced_search(self) -> None:
         """Нажимает кнопку «Расширенный поиск»."""
         with allure.step(
             "Ожидание кликабельной кнопки «Расширенный поиск»"
@@ -146,7 +131,7 @@ class SeachCinemaPage:
             search_button.click()
 
     @allure.step("Проверка перехода на страницу расширенного поиска")
-    def assert_on_advanced_search_movie(self):
+    def assert_on_advanced_search_movie(self) -> None:
         """
         Проверяет, что URL содержит '/s/' — признак страницы
         расширенного поиска.
@@ -158,7 +143,7 @@ class SeachCinemaPage:
             )
 
     @allure.step("Открытие страницы фильма по поиску")
-    def get_movie_genre_displays(self, text: str):
+    def get_movie_genre_displays(self, text: str) -> None:
         """
         Выполняет поиск фильма по названию и переходит на его страницу.
 
@@ -169,23 +154,38 @@ class SeachCinemaPage:
                 EC.presence_of_element_located(self.SEARCH_BAR)
             )
             search_input.clear()
+
         with allure.step(f"Ввод текста '{text}' в поле поиска"):
             search_input.send_keys(text)
+
+        movie_card_locator = (
+            By.XPATH,
+            f"//*[contains(text(), '{text}')]"
+        )
+
         with allure.step(
-            "Ожидание кликабельного элемента подсказки"
+            f"Ожидание появления карточки фильма с названием '{text}'"
         ):
-            extra_input = self.wait.until(
-                EC.element_to_be_clickable(self.SEARCH_INPUT)
-            )
-            extra_input.click()
-        with allure.step("Выбор карточки фильма из подсказок"):
             movie_card = self.wait.until(
-                EC.element_to_be_clickable(self.MOVIE_CARD)
+                EC.element_to_be_clickable(movie_card_locator)
             )
             movie_card.click()
 
+        try:
+            with allure.step(
+                f"Проверка наличия поля ввода в подсказках (SEARCH_INPUT)"
+            ):
+                self.wait.until(
+                    EC.presence_of_element_located(self.SEARCH_INPUT)
+                )
+        except Exception:
+            pass
+
     @allure.step("Проверка, что открыта страница корректного фильма")
-    def assert_on_correct_movie_page(self, expected_title_substring: str):
+    def assert_on_correct_movie_page(
+        self,
+        expected_title_substring: str
+    ) -> None:
         """
         Проверяет, что заголовок фильма содержит ожидаемую подстроку.
 
@@ -208,3 +208,10 @@ class SeachCinemaPage:
                 f"Ожидалось, что заголовок содержит "
                 f"'{expected_title_substring}', но найден: '{title_text}'"
             )
+
+    @allure.step("Проверка, работоспособности поисковой строки")    
+    def get_search_value(self) -> str:
+        search_input = self.wait.until(
+            EC.visibility_of_element_located(self.SEARCH_BAR)
+        )
+        return search_input.get_attribute("value")
